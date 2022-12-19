@@ -11,11 +11,19 @@
 #include <vector>
 
 namespace tuple {
-    struct TypeConvertingError : public std::exception {
-        explicit TypeConvertingError(std::string const & msg) : _msg(msg) {}
+    struct TupleError : public std::exception {
+        explicit TupleError(std::string const & msg) : _msg(msg) {}
         virtual const char * what() const noexcept override { return _msg.c_str(); }
     private:
         std::string _msg;
+    };
+
+    struct TypeConvertingError : public TupleError {
+        explicit TypeConvertingError(std::string const & msg) : TupleError(msg) {}
+    };
+
+    struct NoDataError : public TupleError {
+        explicit NoDataError(std::string const & msg) : TupleError(msg) {}
     };
 }
 
@@ -44,11 +52,13 @@ namespace tuple {
 
     template <typename Type>
     std::tuple<Type> vstr_to_tuple(std::vector<std::string> & data) {
+        if (data.empty())
+            throw NoDataError("data is empty\n");
         std::istringstream str(data.front());
         Type tmp;
         if (!(str >> tmp)) {
             std::string msg = "impossible to convert value \"" + data.front() + "\"";
-            msg += std::string(" to type \"") + typeid(Type).name() + "\"";
+            msg += std::string(" to type \"") + typeid(Type).name() + "\"\n";
             throw TypeConvertingError(msg);
         }
         data.erase(data.begin());
@@ -57,12 +67,14 @@ namespace tuple {
 
     template <typename FirstT, typename SecondT, typename... Types>
     std::tuple<FirstT, SecondT, Types...> vstr_to_tuple(std::vector<std::string> & data) {
+        if (data.empty())
+            throw NoDataError("data is empty\n");
         std::istringstream str(data.front());
         data.erase(data.begin());
-        FirstT tmp; // exc
+        FirstT tmp;
         if (!(str >> tmp)) {
             std::string msg = "impossible to convert \"" + data.front() + "\"";
-            msg += std::string("to type ") + typeid(FirstT).name();
+            msg += std::string(" to type \"") + typeid(FirstT).name() + "\"\n";
             throw TypeConvertingError(msg);
         }
         return std::tuple_cat(std::make_tuple(tmp), vstr_to_tuple<SecondT, Types...>(data));

@@ -8,22 +8,47 @@
 #include <tuple>
 #include <vector>
 
+#include <iostream>
+
 #include "tuple.hpp"
 
 namespace csv {
     std::streamoff skip_lines(std::ifstream & file, size_t n, char delimiter = '\n');
-    void go_to_pos(std::ifstream & file, std::streamoff pos);
     std::string read_line(std::ifstream & file, char delimiter = '\n');
-    std::vector<std::string> split(std::string const & str, char delimiter);
+    std::vector<std::string> split(std::string const & str, char delimiter = ',');
+    void go_to_pos(std::ifstream & file, std::streamoff pos);
 }
 
 namespace csv {
+    struct CSVFormatError : public std::exception {
+        explicit CSVFormatError(std::string const & msg) : _msg(msg) {}
+        virtual const char * what() const noexcept override { return _msg.c_str(); }
+    private:
+        std::string _msg;
+    };
+
+    struct ColumnDataTypeError : public CSVFormatError {
+        explicit ColumnDataTypeError(std::string const & msg) : CSVFormatError(msg) {}
+    };
+
+    struct StringDataTypeError : public CSVFormatError {
+        explicit StringDataTypeError(std::string const & msg) : CSVFormatError(msg) {}
+    };
+}
+
+namespace csv {
+    struct CSVConfig {
+        char str_delimiter_ = '\n';
+        char col_delimiter_ = ',';
+        char escape_char_ = '\"';
+    };
+
     template <typename ValueT, typename... Types>
     class CSVIt final : public std::iterator<std::input_iterator_tag, ValueT, ssize_t> {
     public:
         static ssize_t const EOF_POS = -1;
 
-        explicit CSVIt(std::ifstream & file, ssize_t pos = EOF_POS);
+        explicit CSVIt(std::ifstream & file, CSVConfig config, ssize_t pos = EOF_POS);
         CSVIt(CSVIt const & src);
         ~CSVIt();
 
@@ -39,8 +64,10 @@ namespace csv {
         std::tuple<Types...> * parse_line(std::string const & line);
 
         std::ifstream & file_;
+        CSVConfig config_;
         ssize_t item_pos_;
-        ValueT * item_;
+
+        ValueT * item_ = nullptr;
     };
 
     template <typename... Types>
@@ -58,12 +85,22 @@ namespace csv {
         const_iterator begin() const;
         const_iterator end() const;
 
+        void set_str_delimiter(char delimiter = '\n');
+        void set_col_delimiter(char delimiter = ',');
+        void set_escape_char(char character = '\"');
+
+        char get_str_delimiter();
+        char get_col_delimiter();
+        char get_escape_char();
+
         CSVParser() = delete;
         CSVParser(CSVParser const &) = delete;
         CSVParser & operator=(CSVParser const &) = delete;
     private:
         std::ifstream & file_;
         size_t beg_pos_;
+
+        CSVConfig config_;
     };
 }
 

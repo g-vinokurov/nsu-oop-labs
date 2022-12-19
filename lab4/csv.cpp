@@ -7,10 +7,6 @@ std::streamoff csv::skip_lines(std::ifstream & file, size_t n, char delimiter) {
     return file.tellg();
 }
 
-void csv::go_to_pos(std::ifstream & file, std::streamoff pos) {
-    file.clear(); file.seekg(pos);
-}
-
 std::string csv::read_line(std::ifstream & file, char delimiter) {
     std::string line;
     std::getline(file, line, delimiter);
@@ -25,6 +21,11 @@ std::vector<std::string> csv::split(std::string const & str, char delimiter) {
         std::getline(iss, tmp, iss.widen(delimiter));
         out.push_back(tmp);
     }
-    out.pop_back();
+    if (!out.empty())
+        out.pop_back();
     return out;
+}
+
+void csv::go_to_pos(std::ifstream & file, std::streamoff pos) {
+    file.clear(); file.seekg(pos);
 }

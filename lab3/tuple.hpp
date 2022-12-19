@@ -6,9 +6,10 @@
 #include <ostream>
 #include <tuple>
 
-#include <sstream>
 #include <string>
 #include <vector>
+
+#include "utils.hpp"
 
 namespace tuple {
     struct TupleError : public std::exception {
@@ -18,12 +19,16 @@ namespace tuple {
         std::string _msg;
     };
 
-    struct TypeConvertingError : public TupleError {
-        explicit TypeConvertingError(std::string const & msg) : TupleError(msg) {}
+    struct TupleConvertingError : public TupleError {
+        explicit TupleConvertingError(std::string const & msg) : TupleError(msg) {}
     };
 
-    struct NoDataError : public TupleError {
-        explicit NoDataError(std::string const & msg) : TupleError(msg) {}
+    struct NoDataError : public TupleConvertingError {
+        explicit NoDataError(std::string const & msg) : TupleConvertingError(msg) {}
+    };
+
+    struct TypeConvertingError : public TupleConvertingError {
+        explicit TypeConvertingError(std::string const & msg) : TupleConvertingError(msg) {}
     };
 }
 
@@ -50,35 +55,34 @@ namespace tuple {
         }
     };
 
-    template <typename Type>
-    std::tuple<Type> vstr_to_tuple(std::vector<std::string> & data) {
-        if (data.empty())
-            throw NoDataError("data is empty\n");
-        std::istringstream str(data.front());
-        Type tmp;
-        if (!(str >> tmp)) {
-            std::string msg = "impossible to convert value \"" + data.front() + "\"";
-            msg += std::string(" to type \"") + typeid(Type).name() + "\"\n";
-            throw TypeConvertingError(msg);
+    struct VStrToTupleConverter final {
+        template <typename FirstT, typename SecondT, typename... Types>
+        static std::tuple<FirstT, SecondT, Types...> convert(std::vector<std::string> & data) {
+            std::tuple<FirstT> t = VStrToTupleConverter::convert_to_tuple<FirstT>(data);
+            return std::tuple_cat(t, VStrToTupleConverter::convert<SecondT, Types...>(data));
         }
-        data.erase(data.begin());
-        return std::make_tuple(tmp);
-    }
 
-    template <typename FirstT, typename SecondT, typename... Types>
-    std::tuple<FirstT, SecondT, Types...> vstr_to_tuple(std::vector<std::string> & data) {
-        if (data.empty())
-            throw NoDataError("data is empty\n");
-        std::istringstream str(data.front());
-        data.erase(data.begin());
-        FirstT tmp;
-        if (!(str >> tmp)) {
-            std::string msg = "impossible to convert \"" + data.front() + "\"";
-            msg += std::string(" to type \"") + typeid(FirstT).name() + "\"\n";
-            throw TypeConvertingError(msg);
+        template <typename Type>
+        static std::tuple<Type> convert(std::vector<std::string> & data) {
+            return VStrToTupleConverter::convert_to_tuple<Type>(data);
         }
-        return std::tuple_cat(std::make_tuple(tmp), vstr_to_tuple<SecondT, Types...>(data));
-    }
+    private:
+        template <typename Type>
+        static std::tuple<Type> convert_to_tuple(std::vector<std::string> & data) {
+            if (data.empty())
+                throw tuple::NoDataError("NoDataError: " + std::string("data is empty\n"));
+            Type converted_value;
+            try {
+                converted_value = utils::StrToTypeConverter<Type>::convert(data.front());
+            }
+            catch (utils::TypeConvertingError & e) {
+                throw tuple::TypeConvertingError(e.what());
+            }
+            std::tuple<Type> t = std::make_tuple(converted_value);
+            data.erase(data.begin());
+            return t;
+        }
+    };
 }
 
 template <typename Ch, typename Tr, typename... Args>

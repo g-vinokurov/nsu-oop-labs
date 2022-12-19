@@ -26,6 +26,13 @@ std::vector<std::string> csv::split(std::string const & str, char delimiter) {
     return out;
 }
 
+std::string csv::shrink(std::string const & str) {
+    std::string out = str;
+    while (!out.empty() && std::isblank(out.front())) out.erase(0);
+    while (!out.empty() && std::isblank(out.back())) out.pop_back();
+    return out;
+}
+
 void csv::go_to_pos(std::ifstream & file, std::streamoff pos) {
     file.clear(); file.seekg(pos);
 }

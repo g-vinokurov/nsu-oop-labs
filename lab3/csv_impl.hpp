@@ -6,7 +6,16 @@ csv::CSVIt<ValueT, Types...>::CSVIt(std::ifstream & file, CSVConfig config, ssiz
     if (this->item_pos_ != this->EOF_POS) {
         csv::go_to_pos(this->file_, this->item_pos_);
         std::string line = csv::read_line(this->file_, this->config_.str_delimiter_);
-        this->item_ = this->parse_line(line);
+        while (csv::shrink(line).empty() && !this->file_.eof()) {
+            this->item_pos_ += line.length() + 1;
+            line = csv::read_line(this->file_, this->config_.str_delimiter_);
+        }
+        if (this->file_.eof()) {
+            this->item_pos_ = this->EOF_POS;
+            this->item_ = nullptr;
+        } else {
+            this->item_ = this->parse_line(line);
+        }
     }
 }
 
@@ -29,6 +38,11 @@ csv::CSVIt<ValueT, Types...> & csv::CSVIt<ValueT, Types...>::operator++() {
     this->item_pos_ += curr_line.length() + 1;
 
     std::string next_line = csv::read_line(this->file_, this->config_.str_delimiter_);
+    while (csv::shrink(next_line).empty() && !this->file_.eof()) {
+        this->item_pos_ += next_line.length() + 1;
+        next_line = csv::read_line(this->file_, this->config_.str_delimiter_);
+    }
+
     if (this->file_.eof())
         this->item_pos_ = this->EOF_POS;
 
@@ -63,18 +77,20 @@ typename csv::CSVIt<ValueT, Types...>::pointer csv::CSVIt<ValueT, Types...>::ope
 
 template <typename ValueT, typename... Types>
 std::tuple<Types...> * csv::CSVIt<ValueT, Types...>::parse_line(std::string const & line) {
-    std::vector<std::string> cells = csv::split(line, this->config_.col_delimiter_);
+    std::vector<std::string> cells = csv::split(csv::shrink(line), this->config_.col_delimiter_);
     std::tuple<Types...> t;
     try {
-       t = tuple::vstr_to_tuple<Types...>(cells);
+       t = tuple::VStrToTupleConverter::convert<Types...>(cells);
     }
     catch (tuple::NoDataError & e) {
         std::cerr << e.what() << std::endl;
-        throw csv::StringDataTypeError("impossible to split line\n");
+        std::string msg = "impossible to split line: " + line + "\n";
+        throw csv::StringDataTypeError("StringDataTypeError: " + msg);
     }
     catch (tuple::TypeConvertingError & e) {
         std::cerr << e.what() << std::endl;
-        throw csv::ColumnDataTypeError("impossible to split line\n");
+        std::string msg = "impossible to convert cells of line: " + line + "\n";
+        throw csv::ColumnDataTypeError("StringDataTypeError: " + msg);
     }
     return new std::tuple<Types...>(t);
 }

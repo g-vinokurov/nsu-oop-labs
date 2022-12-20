@@ -13,22 +13,52 @@ std::string csv::read_line(std::ifstream & file, char delimiter) {
     return line;
 }
 
-std::vector<std::string> csv::split(std::string const & str, char delimiter) {
+std::string csv::read_cell(std::istringstream & iss, char escape_char, char delimiter) {
+    std::string out;
+    bool is_quoted = (iss.peek() == escape_char);
+    bool on_quote = is_quoted;
+    int character = iss.get();
+    if (is_quoted)
+        character = iss.get();
+    while (!iss.fail()) {
+        if (character == escape_char) {
+            if (is_quoted) {
+                if (iss.peek() == delimiter) {
+                    iss.get();
+                    return "\"" + out + "\"";
+                }
+                if (iss.peek() == escape_char)
+                    out.push_back(static_cast<char>(iss.get()));
+                else {
+                    std::string msg = "impossible to split cell: " + out + "\n";
+                    throw csv::ColumnDataTypeError("ColumnDataTypeError: " + msg);
+                }
+            } else {
+                out.push_back('\"');
+                on_quote = !on_quote;
+            }
+        } else if (character == delimiter) {
+            if (!on_quote)
+                return csv::shrink((is_quoted) ? ("\"" + out + "\"") : out);
+            out.push_back(static_cast<char>(character));
+        } else
+            out.push_back(static_cast<char>(character));
+        character = iss.get();
+    }
+    return csv::shrink((is_quoted) ? ("\"" + out + "\"") : out);
+}
+
+std::vector<std::string> csv::split(std::string const & str, char escape_char, char delimiter) {
     std::vector<std::string> out;
     std::istringstream iss(str);
-    while (!iss.fail()) {
-        std::string tmp;
-        std::getline(iss, tmp, iss.widen(delimiter));
-        out.push_back(tmp);
-    }
-    if (!out.empty())
-        out.pop_back();
+    while (!iss.fail())
+        out.push_back(csv::read_cell(iss, escape_char, delimiter));
     return out;
 }
 
 std::string csv::shrink(std::string const & str) {
     std::string out = str;
-    while (!out.empty() && std::isblank(out.front())) out.erase(0);
+    while (!out.empty() && std::isblank(out.front())) out.erase(out.begin());
     while (!out.empty() && std::isblank(out.back())) out.pop_back();
     return out;
 }

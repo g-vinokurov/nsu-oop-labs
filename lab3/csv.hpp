@@ -13,9 +13,10 @@
 #include "tuple.hpp"
 
 namespace csv {
-    std::streamoff skip_lines(std::ifstream & file, size_t n, char delimiter = '\n');
-    std::string read_line(std::ifstream & file, char delimiter = '\n');
-    std::vector<std::string> split(std::string const & str, char delimiter = ',');
+    std::streamoff skip_lines(std::ifstream & file, size_t n, char delimiter);
+    std::string read_line(std::ifstream & file, char delimiter);
+    std::string read_cell(std::istringstream & iss, char escape_char, char delimiter);
+    std::vector<std::string> split(std::string const & str, char escape_char, char delimiter);
     std::string shrink(std::string const & str);
     void go_to_pos(std::ifstream & file, std::streamoff pos);
 }

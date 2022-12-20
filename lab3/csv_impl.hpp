@@ -77,7 +77,7 @@ typename csv::CSVIt<ValueT, Types...>::pointer csv::CSVIt<ValueT, Types...>::ope
 
 template <typename ValueT, typename... Types>
 std::tuple<Types...> * csv::CSVIt<ValueT, Types...>::parse_line(std::string const & line) {
-    std::vector<std::string> cells = csv::split(csv::shrink(line), this->config_.col_delimiter_);
+    auto cells = csv::split(csv::shrink(line), this->config_.escape_char_, this->config_.col_delimiter_);
     std::tuple<Types...> t;
     try {
        t = tuple::VStrToTupleConverter::convert<Types...>(cells);

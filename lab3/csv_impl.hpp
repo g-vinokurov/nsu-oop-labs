@@ -5,10 +5,10 @@ csv::CSVIt<ValueT, Types...>::CSVIt(std::ifstream & file, CSVConfig config, ssiz
     this->config_ = config;
     if (this->item_pos_ != this->EOF_POS) {
         csv::go_to_pos(this->file_, this->item_pos_);
-        std::string line = csv::read_line(this->file_, this->config_.str_delimiter_);
+        std::string line = csv::read_line(this->file_, this->config_.get_str_delimiter());
         while (utils::shrink(line).empty() && !this->file_.eof()) {
             this->item_pos_ += line.length() + 1;
-            line = csv::read_line(this->file_, this->config_.str_delimiter_);
+            line = csv::read_line(this->file_, this->config_.get_str_delimiter());
         }
         if (this->file_.eof()) {
             this->item_pos_ = this->EOF_POS;
@@ -34,13 +34,13 @@ csv::CSVIt<ValueT, Types...> & csv::CSVIt<ValueT, Types...>::operator++() {
     if (this->item_pos_ == this->EOF_POS)
         return *this;
     csv::go_to_pos(this->file_, this->item_pos_);
-    std::string curr_line = csv::read_line(this->file_, this->config_.str_delimiter_);
+    std::string curr_line = csv::read_line(this->file_, this->config_.get_str_delimiter());
     this->item_pos_ += curr_line.length() + 1;
 
-    std::string next_line = csv::read_line(this->file_, this->config_.str_delimiter_);
+    std::string next_line = csv::read_line(this->file_, this->config_.get_str_delimiter());
     while (utils::shrink(next_line).empty() && !this->file_.eof()) {
         this->item_pos_ += next_line.length() + 1;
-        next_line = csv::read_line(this->file_, this->config_.str_delimiter_);
+        next_line = csv::read_line(this->file_, this->config_.get_str_delimiter());
     }
 
     if (this->file_.eof())
@@ -77,7 +77,7 @@ typename csv::CSVIt<ValueT, Types...>::pointer csv::CSVIt<ValueT, Types...>::ope
 
 template <typename ValueT, typename... Types>
 std::tuple<Types...> * csv::CSVIt<ValueT, Types...>::parse_line(std::string const & line) {
-    auto cells = csv::split(utils::shrink(line), this->config_.escape_char_, this->config_.col_delimiter_);
+    auto cells = csv::split(utils::shrink(line), this->config_.get_escape_char(), this->config_.get_col_delimiter());
     std::tuple<Types...> t;
     try {
        t = tuple::VStrToTupleConverter::convert<Types...>(cells);
@@ -97,7 +97,7 @@ std::tuple<Types...> * csv::CSVIt<ValueT, Types...>::parse_line(std::string cons
 
 template <typename... Types>
 csv::CSVParser<Types...>::CSVParser(std::ifstream & file, size_t line_offset) : file_(file), beg_pos_(0) {
-    this->beg_pos_ = csv::skip_lines(this->file_, line_offset, this->config_.str_delimiter_);
+    this->beg_pos_ = csv::skip_lines(this->file_, line_offset, this->config_.get_str_delimiter());
 }
 
 template <typename... Types>
@@ -122,31 +122,31 @@ typename csv::CSVParser<Types...>::const_iterator csv::CSVParser<Types...>::end(
 
 template <typename... Types>
 void csv::CSVParser<Types...>::set_str_delimiter(char delimiter) {
-    this->config_.str_delimiter_ = delimiter;
+    this->config_.set_str_delimiter(delimiter);
 }
 
 template <typename... Types>
 void csv::CSVParser<Types...>::set_col_delimiter(char delimiter) {
-    this->config_.col_delimiter_ = delimiter;
+    this->config_.set_col_delimiter(delimiter);
 }
 
 template <typename... Types>
 void csv::CSVParser<Types...>::set_escape_char(char character) {
-    this->config_.escape_char_ = character;
+    this->config_.set_escape_char(character);
 }
 
 template <typename... Types>
-char csv::CSVParser<Types...>::get_str_delimiter() {
-    return this->config_.str_delimiter_;
+char csv::CSVParser<Types...>::get_str_delimiter() const {
+    return this->config_.get_str_delimiter();
 }
 
 template <typename... Types>
-char csv::CSVParser<Types...>::get_col_delimiter() {
-    return this->config_.col_delimiter_;
+char csv::CSVParser<Types...>::get_col_delimiter() const {
+    return this->config_.get_col_delimiter();
 }
 
 template <typename... Types>
-char csv::CSVParser<Types...>::get_escape_char() {
-    return this->config_.escape_char_;
+char csv::CSVParser<Types...>::get_escape_char() const {
+    return this->config_.get_escape_char();
 }
 

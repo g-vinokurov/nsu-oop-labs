@@ -12,28 +12,33 @@
 #include "utils.hpp"
 
 namespace tuple {
-    struct TupleError : public std::exception {
+    class TupleError : public std::exception {
+    public:
         explicit TupleError(std::string const & msg) : _msg(msg) {}
         virtual const char * what() const noexcept override { return _msg.c_str(); }
     private:
         std::string _msg;
     };
 
-    struct TupleConvertingError : public TupleError {
+    class TupleConvertingError : public TupleError {
+    public:
         explicit TupleConvertingError(std::string const & msg) : TupleError(msg) {}
     };
 
-    struct NoDataError : public TupleConvertingError {
+    class NoDataError : public TupleConvertingError {
+    public:
         explicit NoDataError(std::string const & msg) : TupleConvertingError(msg) {}
     };
 
-    struct TypeConvertingError : public TupleConvertingError {
+    class TypeConvertingError : public TupleConvertingError {
+    public:
         explicit TypeConvertingError(std::string const & msg) : TupleConvertingError(msg) {}
     };
 }
 
 namespace tuple {
-    struct TuplePrinter final {
+    class TuplePrinter final {
+    public:
         template<typename Ch, typename Tr, typename... Args>
         static auto print(std::basic_ostream<Ch, Tr> & os, std::tuple<Args...> const & t) -> decltype(os) {
             return print_tuple<decltype(os), decltype(t), sizeof...(Args)>(os << "(", t) << ")";
@@ -56,7 +61,8 @@ namespace tuple {
         }
     };
 
-    struct VStrToTupleConverter final {
+    class VStrToTupleConverter final {
+    public:
         template <typename FirstT, typename SecondT, typename... Types>
         static std::tuple<FirstT, SecondT, Types...> convert(std::vector<std::string> & data) {
             std::tuple<FirstT> t = VStrToTupleConverter::convert_to_tuple<FirstT>(data);

@@ -4,7 +4,8 @@
 #include <string>
 
 namespace utils {
-    struct TypeConvertingError : public std::exception {
+    class TypeConvertingError : public std::exception {
+    public:
         explicit TypeConvertingError(std::string const & msg) : _msg(msg) {}
         virtual const char * what() const noexcept override { return _msg.c_str(); }
     private:
@@ -14,7 +15,8 @@ namespace utils {
 
 namespace utils {
     template <typename Type>
-    struct StrToTypeConverter final {
+    class StrToTypeConverter final {
+    public:
         static Type convert(std::string & str) {
             std::istringstream iss(str);
             Type result;
@@ -28,7 +30,8 @@ namespace utils {
     };
 
     template <>
-    struct StrToTypeConverter<std::string> final {
+    class StrToTypeConverter<std::string> final {
+    public:
         static std::string convert(std::string & str) {
             return str;
         }

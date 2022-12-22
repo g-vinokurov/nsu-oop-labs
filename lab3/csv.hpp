@@ -22,25 +22,37 @@ namespace csv {
 }
 
 namespace csv {
-    struct CSVFormatError : public std::exception {
+    class CSVFormatError : public std::exception {
+    public:
         explicit CSVFormatError(std::string const & msg) : _msg(msg) {}
         virtual const char * what() const noexcept override { return _msg.c_str(); }
     private:
         std::string _msg;
     };
 
-    struct ColumnDataTypeError : public CSVFormatError {
+    class ColumnDataTypeError : public CSVFormatError {
+    public:
         explicit ColumnDataTypeError(std::string const & msg) : CSVFormatError(msg) {}
     };
 
-    struct StringDataTypeError : public CSVFormatError {
+    class StringDataTypeError : public CSVFormatError {
+    public:
         explicit StringDataTypeError(std::string const & msg) : CSVFormatError(msg) {}
     };
 }
 
 namespace csv {
-    struct CSVConfig {
+    class CSVConfig {
+    public:
         virtual ~CSVConfig() = default;
+
+        void set_str_delimiter(char delimiter = '\n');
+        void set_col_delimiter(char delimiter = ',');
+        void set_escape_char(char character = '\"');
+        char get_str_delimiter() const;
+        char get_col_delimiter() const;
+        char get_escape_char() const;
+    private:
         char str_delimiter_ = '\n';
         char col_delimiter_ = ',';
         char escape_char_ = '\"';
@@ -92,9 +104,9 @@ namespace csv {
         void set_col_delimiter(char delimiter = ',');
         void set_escape_char(char character = '\"');
 
-        char get_str_delimiter();
-        char get_col_delimiter();
-        char get_escape_char();
+        char get_str_delimiter() const;
+        char get_col_delimiter() const;
+        char get_escape_char() const;
 
         CSVParser() = delete;
         CSVParser(CSVParser const &) = delete;

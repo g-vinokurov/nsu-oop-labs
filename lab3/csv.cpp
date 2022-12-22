@@ -1,5 +1,29 @@
 #include "csv.hpp"
 
+void csv::CSVConfig::set_str_delimiter(char delimiter) {
+    this->str_delimiter_ = delimiter;
+}
+
+void csv::CSVConfig::set_col_delimiter(char delimiter){
+    this->col_delimiter_ = delimiter;
+}
+
+void csv::CSVConfig::set_escape_char(char character) {
+    this->escape_char_ = character;
+}
+
+char csv::CSVConfig::get_str_delimiter() const {
+    return this->str_delimiter_;
+}
+
+char csv::CSVConfig::get_col_delimiter() const {
+    return this->col_delimiter_;
+}
+
+char csv::CSVConfig::get_escape_char() const {
+    return this->escape_char_;
+}
+
 std::streamoff csv::skip_lines(std::ifstream & file, size_t n, char delimiter) {
     file.clear(); file.seekg(0, std::ios_base::beg);
     for (size_t i = 0; i != n; ++i)

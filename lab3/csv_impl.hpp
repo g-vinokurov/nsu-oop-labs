@@ -6,7 +6,7 @@ csv::CSVIt<ValueT, Types...>::CSVIt(std::ifstream & file, CSVConfig config, ssiz
     if (this->item_pos_ != this->EOF_POS) {
         csv::go_to_pos(this->file_, this->item_pos_);
         std::string line = csv::read_line(this->file_, this->config_.str_delimiter_);
-        while (csv::shrink(line).empty() && !this->file_.eof()) {
+        while (utils::shrink(line).empty() && !this->file_.eof()) {
             this->item_pos_ += line.length() + 1;
             line = csv::read_line(this->file_, this->config_.str_delimiter_);
         }
@@ -38,7 +38,7 @@ csv::CSVIt<ValueT, Types...> & csv::CSVIt<ValueT, Types...>::operator++() {
     this->item_pos_ += curr_line.length() + 1;
 
     std::string next_line = csv::read_line(this->file_, this->config_.str_delimiter_);
-    while (csv::shrink(next_line).empty() && !this->file_.eof()) {
+    while (utils::shrink(next_line).empty() && !this->file_.eof()) {
         this->item_pos_ += next_line.length() + 1;
         next_line = csv::read_line(this->file_, this->config_.str_delimiter_);
     }
@@ -77,7 +77,7 @@ typename csv::CSVIt<ValueT, Types...>::pointer csv::CSVIt<ValueT, Types...>::ope
 
 template <typename ValueT, typename... Types>
 std::tuple<Types...> * csv::CSVIt<ValueT, Types...>::parse_line(std::string const & line) {
-    auto cells = csv::split(csv::shrink(line), this->config_.escape_char_, this->config_.col_delimiter_);
+    auto cells = csv::split(utils::shrink(line), this->config_.escape_char_, this->config_.col_delimiter_);
     std::tuple<Types...> t;
     try {
        t = tuple::VStrToTupleConverter::convert<Types...>(cells);

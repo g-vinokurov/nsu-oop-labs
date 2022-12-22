@@ -33,4 +33,16 @@ namespace utils {
             return str;
         }
     };
+
+    template<typename OStream, typename Type>
+    OStream & print(OStream & os, Type const & value) {
+        return os << value;
+    }
+
+    template<typename OStream>
+    OStream & print(OStream & os, std::string const & value) {
+        return os << ("\"" + value + "\"");
+    }
+
+    std::string shrink(std::string const & str);
 }

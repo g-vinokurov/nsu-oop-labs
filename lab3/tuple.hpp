@@ -46,12 +46,13 @@ namespace tuple {
 
         template <typename OStream, typename Tuple, size_t N, std::enable_if_t<N == 1, bool> = true>
         static OStream & print_tuple(OStream & os, Tuple & t) {
-            return os << std::get<0>(t);
+            return utils::print(os, std::get<0>(t));
         }
 
         template <typename OStream, typename Tuple, size_t N, std::enable_if_t<(N > 1), bool> = true>
         static OStream & print_tuple(OStream & os, Tuple & t) {
-            return print_tuple<OStream, Tuple, N - 1>(os, t) << ", " << std::get<N - 1>(t);
+            OStream & rec = print_tuple<OStream, Tuple, N - 1>(os, t) << ", ";
+            return utils::print(rec, std::get<N - 1>(t));
         }
     };
 

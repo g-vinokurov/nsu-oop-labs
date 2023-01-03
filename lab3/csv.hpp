@@ -44,11 +44,16 @@ namespace csv {
 namespace csv {
     class CSVConfig {
     public:
+        explicit CSVConfig(char str_delimiter = '\n', char col_delimiter = ',', char escape_char = '\"') {
+            this->str_delimiter_ = str_delimiter;
+            this->col_delimiter_ = col_delimiter;
+            this->escape_char_ = escape_char;
+        }
         virtual ~CSVConfig() = default;
 
-        void set_str_delimiter(char delimiter = '\n');
-        void set_col_delimiter(char delimiter = ',');
-        void set_escape_char(char character = '\"');
+        void set_str_delimiter(char delimiter);
+        void set_col_delimiter(char delimiter);
+        void set_escape_char(char character);
         char get_str_delimiter() const;
         char get_col_delimiter() const;
         char get_escape_char() const;
@@ -92,21 +97,13 @@ namespace csv {
         using iterator = CSVIt<value_type, Types...>;
         using const_iterator = CSVIt<value_type const, Types...>;
 
-        CSVParser(std::ifstream & file, size_t line_offset);
+        CSVParser(std::ifstream & file, size_t line_offset, CSVConfig config = CSVConfig());
         ~CSVParser() = default;
 
         iterator begin();
         iterator end();
         const_iterator begin() const;
         const_iterator end() const;
-
-        void set_str_delimiter(char delimiter = '\n');
-        void set_col_delimiter(char delimiter = ',');
-        void set_escape_char(char character = '\"');
-
-        char get_str_delimiter() const;
-        char get_col_delimiter() const;
-        char get_escape_char() const;
 
         CSVParser() = delete;
         CSVParser(CSVParser const &) = delete;

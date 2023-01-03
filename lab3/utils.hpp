@@ -17,7 +17,7 @@ namespace utils {
     template <typename Type>
     class StrToTypeConverter final {
     public:
-        static Type convert(std::string & str) {
+        static Type convert(std::string const & str) {
             std::istringstream iss(str);
             Type result;
             if (!(iss >> result)) {
@@ -32,7 +32,7 @@ namespace utils {
     template <>
     class StrToTypeConverter<std::string> final {
     public:
-        static std::string convert(std::string & str) {
+        static std::string convert(std::string const & str) {
             return str;
         }
     };
@@ -43,8 +43,18 @@ namespace utils {
     }
 
     template<typename OStream>
+    OStream & print(OStream & os, char value) {
+        return os << "\'" << value << "\'";
+    }
+
+    template<typename OStream>
+    OStream & print(OStream & os, const char * value) {
+        return os << "\"" << value << "\"";
+    }
+
+    template<typename OStream>
     OStream & print(OStream & os, std::string const & value) {
-        return os << ("\"" + value + "\"");
+        return os << "\"" << value << "\"";
     }
 
     std::string shrink(std::string const & str);

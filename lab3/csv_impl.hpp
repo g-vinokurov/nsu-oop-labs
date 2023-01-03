@@ -96,7 +96,8 @@ std::tuple<Types...> * csv::CSVIt<ValueT, Types...>::parse_line(std::string cons
 }
 
 template <typename... Types>
-csv::CSVParser<Types...>::CSVParser(std::ifstream & file, size_t line_offset) : file_(file), beg_pos_(0) {
+csv::CSVParser<Types...>::CSVParser(std::ifstream & file, size_t line_offset, CSVConfig config) : file_(file), beg_pos_(0) {
+    this->config_ = config;
     this->beg_pos_ = csv::skip_lines(this->file_, line_offset, this->config_.get_str_delimiter());
 }
 
@@ -119,34 +120,3 @@ template <typename... Types>
 typename csv::CSVParser<Types...>::const_iterator csv::CSVParser<Types...>::end() const {
     return csv::CSVParser<Types...>::const_iterator(this->file_, this->config_);
 }
-
-template <typename... Types>
-void csv::CSVParser<Types...>::set_str_delimiter(char delimiter) {
-    this->config_.set_str_delimiter(delimiter);
-}
-
-template <typename... Types>
-void csv::CSVParser<Types...>::set_col_delimiter(char delimiter) {
-    this->config_.set_col_delimiter(delimiter);
-}
-
-template <typename... Types>
-void csv::CSVParser<Types...>::set_escape_char(char character) {
-    this->config_.set_escape_char(character);
-}
-
-template <typename... Types>
-char csv::CSVParser<Types...>::get_str_delimiter() const {
-    return this->config_.get_str_delimiter();
-}
-
-template <typename... Types>
-char csv::CSVParser<Types...>::get_col_delimiter() const {
-    return this->config_.get_col_delimiter();
-}
-
-template <typename... Types>
-char csv::CSVParser<Types...>::get_escape_char() const {
-    return this->config_.get_escape_char();
-}
-

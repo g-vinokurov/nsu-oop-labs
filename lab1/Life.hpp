@@ -5,6 +5,7 @@
 
 #include "utils.hpp"
 
+#include "LifeConstants.hpp"
 #include "LifeConfig.hpp"
 #include "LifeFileParser.hpp"
 
@@ -20,10 +21,12 @@ namespace life {
         static Life & init(std::string const & filename = "");
         void next_generation();
         void evolve(size_t stages = 1);
+        void dump(std::string const & filename);
 
         std::string get_universe_name() const;
         life::LifeConfig::TrRule get_birth_rule() const;
         life::LifeConfig::TrRule get_survival_rule() const;
+        std::string get_transition_rule() const;
         Field get_field() const;
 
         void set_cell(long long row, long long col, Cell const & value);
@@ -37,8 +40,8 @@ namespace life {
 
         std::string universe_name_;
         Field field_;
-        unsigned long long field_width_;
-        unsigned long long field_height_;
+        unsigned long long field_rows_;
+        unsigned long long field_cols_;
         life::LifeConfig::TrRule b_rule_;
         life::LifeConfig::TrRule s_rule_;
     };

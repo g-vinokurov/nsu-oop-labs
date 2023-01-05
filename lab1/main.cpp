@@ -24,12 +24,15 @@ int main(int argc, char ** argv) {
     }
 
     life_instance.next_generation();
+    std::cout << std::endl;
 
     for (auto & row : life_instance.get_field()) {
         for (auto cell: row)
             std::cout << cell << " ";
         std::cout << std::endl;
     }
+
+    life_instance.dump("dump.life");
     return 0;
 }
 

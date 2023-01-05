@@ -78,25 +78,25 @@ void life::LifeFileParser::parse_field_size(std::string const & line, life::Life
     }
     if (field_size.first <= 0 or field_size.second <= 0)
         throw life::LifeParserError("Field sizes must be positive");
-    config.set_field_width(static_cast<unsigned long long>(field_size.first));
-    config.set_field_height(static_cast<unsigned long long>(field_size.second));
+    config.set_field_rows(static_cast<unsigned long long>(field_size.first));
+    config.set_field_cols(static_cast<unsigned long long>(field_size.second));
 }
 
 void life::LifeFileParser::parse_cells(std::ifstream & file, life::LifeConfig & config, std::ostream & err) {
     std::string line;
     while (not file.eof() && not file.fail()) {
         std::getline(file, line);
-        std::pair<long long, long long> xy;
+        std::pair<long long, long long> rc;
         try {
-            xy = life::LifeFileParser::parse_xy_value(utils::shrink(line));
+            rc = life::LifeFileParser::parse_xy_value(utils::shrink(line));
         } catch (life::LifeParserError & e) {
             throw life::LifeParserError("Couldn't define coordinates from string \"" + line + "\"");
         }
         size_t old_set_size = config.get_live_cells_count();
-        config.insert_live_cell(xy.first, xy.second);
+        config.insert_live_cell(rc.first, rc.second);
         size_t new_set_size = config.get_live_cells_count();
         if (old_set_size == new_set_size)
-            err << "The cell (" << xy.first << ", " << xy.second << ") has already live" << std::endl;
+            err << "The cell (" << rc.first << ", " << rc.second << ") has already live" << std::endl;
     }
 }
 

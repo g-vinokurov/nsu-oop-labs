@@ -8,16 +8,16 @@ void life::LifeConfig::set_universe_name(std::string const & str) {
     this->universe_name_ = str;
 }
 
-void life::LifeConfig::set_field_width(unsigned long long width) {
-    this->field_width_ = (width > 0) ? width : this->field_width_;
+void life::LifeConfig::set_field_rows(unsigned long long rows) {
+    this->field_rows_ = (rows > 0) ? rows : this->field_rows_;
 }
 
-void life::LifeConfig::set_field_height(unsigned long long height) {
-    this->field_height_ = (height > 0) ? height : this->field_height_;
+void life::LifeConfig::set_field_cols(unsigned long long cols) {
+    this->field_cols_ = (cols > 0) ? cols : this->field_cols_;
 }
 
-void life::LifeConfig::insert_live_cell(long long x, long long y) {
-    auto xy = utils::toroidal_xy(x, y, this->field_width_, this->field_height_);
+void life::LifeConfig::insert_live_cell(long long row, long long col) {
+    auto xy = utils::toroidal_xy(row, col, this->field_rows_, this->field_cols_);
     this->live_cells_.insert(life::CellPos(xy.first, xy.second));
 }
 
@@ -33,12 +33,12 @@ std::string life::LifeConfig::get_universe_name() const {
     return this->universe_name_;
 }
 
-unsigned long long life::LifeConfig::get_field_width() const {
-    return this->field_width_;
+unsigned long long life::LifeConfig::get_field_rows() const {
+    return this->field_rows_;
 }
 
-unsigned long long life::LifeConfig::get_field_height() const {
-    return this->field_height_;
+unsigned long long life::LifeConfig::get_field_cols() const {
+    return this->field_cols_;
 }
 
 std::set<life::CellPos> & life::LifeConfig::get_live_cells() {

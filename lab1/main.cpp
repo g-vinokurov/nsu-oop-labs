@@ -17,8 +17,15 @@ int main(int argc, char ** argv) {
     std::string filename = (argc == 1) ? "default.life" : argv[1];
     life::Life & life_instance = life::Life::init(filename);
 
-    life::Life::Field field = life_instance.get_field();
-    for (auto & row : field) {
+    for (auto & row : life_instance.get_field()) {
+        for (auto cell: row)
+            std::cout << cell << " ";
+        std::cout << std::endl;
+    }
+
+    life_instance.next_generation();
+
+    for (auto & row : life_instance.get_field()) {
         for (auto cell: row)
             std::cout << cell << " ";
         std::cout << std::endl;

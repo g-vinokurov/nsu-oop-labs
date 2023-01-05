@@ -17,9 +17,8 @@ void life::LifeConfig::set_field_height(unsigned long long height) {
 }
 
 void life::LifeConfig::insert_live_cell(long long x, long long y) {
-    auto real_x = (this->field_width_ - x % this->field_width_) % this->field_width_;
-    auto real_y = (this->field_height_ - y % this->field_height_) % this->field_height_;
-    this->live_cells_.insert(std::make_pair(real_x, real_y));
+    auto xy = utils::toroidal_xy(x, y, this->field_width_, this->field_height_);
+    this->live_cells_.insert(life::CellPos(xy.first, xy.second));
 }
 
 void life::LifeConfig::set_birth_rule(life::LifeConfig::TrRule const & rule) {
@@ -42,15 +41,11 @@ unsigned long long life::LifeConfig::get_field_height() const {
     return this->field_height_;
 }
 
-std::pair<unsigned long long, unsigned long long> life::LifeConfig::get_field_size() const {
-    return std::make_pair(this->field_width_, this->field_height_);
-}
-
-std::set<std::pair<long long, long long>> & life::LifeConfig::get_live_cells() {
+std::set<life::CellPos> & life::LifeConfig::get_live_cells() {
     return this->live_cells_;
 }
 
-std::set<std::pair<long long, long long>> life::LifeConfig::get_live_cells() const {
+std::set<life::CellPos> life::LifeConfig::get_live_cells() const {
     return this->live_cells_;
 }
 

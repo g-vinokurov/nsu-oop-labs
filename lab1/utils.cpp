@@ -45,3 +45,9 @@ int utils::digit_to_int(char digit) {
         default : return 0;
     }
 }
+
+std::pair<long long, long long> utils::toroidal_xy(long long x, long long y, long long w, long long h) {
+    long long cell_x = (w + x % w) % w;
+    long long cell_y = (h + y % h) % h;
+    return std::make_pair(cell_x, cell_y);
+}

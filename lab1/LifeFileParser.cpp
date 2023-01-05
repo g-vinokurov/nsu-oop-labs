@@ -23,14 +23,14 @@ life::LifeConfig life::LifeFileParser::parse(std::string const & filename, std::
 
     bool file_has_transition_rule = utils::starts_with(line, life::UNIVERSE_RULE_PREFIX);
     if (file_has_transition_rule)
-        parse_rule(line.erase(0, life::UNIVERSE_RULE_PREFIX.length()), config, err);
+        life::LifeFileParser::parse_rule(line.erase(0, life::UNIVERSE_RULE_PREFIX.length()), config, err);
     else
         err << "There is no transition rule. The default rule was set" << std::endl;
     if (file_has_transition_rule)
         std::getline(file, line);
 
-    parse_field_size(line, config);
-    parse_cells(file, config, err);
+    life::LifeFileParser::parse_field_size(line, config);
+    life::LifeFileParser::parse_cells(file, config, err);
     return config;
 }
 

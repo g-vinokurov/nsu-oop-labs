@@ -5,6 +5,30 @@
 #include <bitset>
 #include <set>
 
+#include "utils.hpp"
+
+namespace life {
+    class CellPos final {
+    public:
+        CellPos(long long x, long long y) : pos_(std::make_pair(x, y)) {}
+        long long & x() { return this->pos_.first; }
+        long long x() const { return this->pos_.first; }
+        long long & y() { return this->pos_.second; }
+        long long y() const { return this->pos_.second; }
+
+        bool operator<(CellPos const & other) const { return this->pos_ < other.pos_; }
+        bool operator<=(CellPos const & other) const { return this->pos_ <= other.pos_; }
+        bool operator>=(CellPos const & other) const { return this->pos_ >= other.pos_; }
+        bool operator>(CellPos const & other) const { return this->pos_ > other.pos_; }
+        bool operator!=(CellPos const & other) const { return this->pos_ != other.pos_; }
+        bool operator==(CellPos const & other) const { return this->pos_ == other.pos_; }
+
+        ~CellPos() = default;
+    private:
+        std::pair<long long, long long> pos_;
+    };
+}
+
 namespace life {
     class LifeConfig final {
     public:
@@ -26,9 +50,8 @@ namespace life {
         std::string get_universe_name() const;
         unsigned long long get_field_width() const;
         unsigned long long get_field_height() const;
-        std::pair<unsigned long long, unsigned long long> get_field_size() const;
-        std::set<std::pair<long long, long long>> & get_live_cells();
-        std::set<std::pair<long long, long long>> get_live_cells() const;
+        std::set<life::CellPos> & get_live_cells();
+        std::set<life::CellPos> get_live_cells() const;
         size_t get_live_cells_count() const;
         TrRule get_birth_rule() const;
         TrRule get_survival_rule() const;
@@ -36,7 +59,7 @@ namespace life {
         std::string universe_name_ = LifeConfig::DEFAULT_UNIVERSE_NAME;
         unsigned long long field_width_ = 1;
         unsigned long long field_height_ = 1;
-        std::set<std::pair<long long, long long>> live_cells_;
+        std::set<life::CellPos> live_cells_;
         TrRule b_rule_ = LifeConfig::DEFAULT_BIRTH_RULE;
         TrRule s_rule_ = LifeConfig::DEFAULT_SURVIVAL_RULE;
     };

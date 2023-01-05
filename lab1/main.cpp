@@ -1,41 +1,11 @@
-#include <iostream>
-#include <string>
-
-#include "Life.hpp"
-
-void print_help(std::ostream & out, std::string const & msg);
+#include "App.hpp"
 
 int main(int argc, char ** argv) {
     if (argc == 3 or argc > 6) {
-        print_help(std::cout, "Invalid number of arguments");
-        return 0;
-    }
-    if (argc >= 4) {
-        print_help(std::cout, "In development");
-        return 0;
-    }
-    std::string filename = (argc == 1) ? "default.life" : argv[1];
-    life::Life & life_instance = life::Life::init(filename);
-
-    for (auto & row : life_instance.get_field()) {
-        for (auto cell: row)
-            std::cout << cell << " ";
-        std::cout << std::endl;
-    }
-
-    life_instance.next_generation();
-    std::cout << std::endl;
-
-    for (auto & row : life_instance.get_field()) {
-        for (auto cell: row)
-            std::cout << cell << " ";
-        std::cout << std::endl;
-    }
-
-    life_instance.dump("dump.life");
+        app::HelpApp();
+    } else if (argc == 1 or argc == 2) {
+        app::OnlineApp(argc, argv);
+    } else
+        app::OfflineApp(argc, argv);
     return 0;
-}
-
-void print_help(std::ostream & out, std::string const & msg) {
-    out << msg << std::endl;
 }

@@ -3,10 +3,11 @@
 #include <exception>
 #include <iostream>
 #include <utility>
+#include <tuple>
 
 #include "Life.hpp"
-#include "Qt5GUI.hpp"
-#include "Presenter.hpp"
+#include "LifeQtGUI.hpp"
+#include "LifePresenter.hpp"
 
 namespace app {
     const std::string ARG_ITERATIONS_PREFIX_L = "--iterations=";
@@ -26,34 +27,31 @@ namespace app {
 }
 
 namespace app {
-    class IApp {
+    class App {
     public:
-        virtual int execute(int argc, char ** argv) = 0;
-        virtual ~IApp() = default;
+        virtual ~App() = default;
     };
 
-    class HelpApp final : public IApp {
+    class HelpApp final : public App {
     public:
-        int execute(int argc, char ** argv) override;
+        static int execute(int argc, char ** argv);
     };
 
-    class OnlineApp final : public IApp {
+    class OnlineApp final : public App {
     public:
-        int execute(int argc, char ** argv) override;
+        static int execute(int argc, char ** argv);
     private:
         static std::string random_scenario();
     };
 
-    class OfflineApp final : public IApp {
+    class OfflineApp final : public App {
     public:
-        int execute(int argc, char ** argv) override;
+        using ArgsTuple = std::tuple<size_t, std::string>;
+        static int execute(int argc, char ** argv);
     private:
         static void parse_long_prefix_args(std::vector<std::string> & args, std::string & x, std::string & o);
         static void parse_mix_prefix_args(std::vector<std::string> & args, std::string & x, std::string & o);
         static void parse_short_prefix_args(std::vector<std::string> & args, std::string & x, std::string & o);
-        void parse_args(int argc, char ** argv);
-
-        size_t stages_;
-        std::string output_;
+        static app::OfflineApp::ArgsTuple parse_args(int argc, char ** argv);
     };
 }

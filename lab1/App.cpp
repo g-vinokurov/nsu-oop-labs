@@ -13,26 +13,24 @@ int app::HelpApp::execute(int argc, char ** argv) {
 }
 
 int app::OnlineApp::execute(int argc, char ** argv) {
-    /*
     std::string scenario = (argc == 2) ? argv[1] : app::OnlineApp::random_scenario();
     life::Life & life_instance = life::Life::init(scenario);
-    qt5gui::App & qt5_app_instance = qt5gui::App::init(argc, argv);
-    mvp::Presenter & presenter = mvp::Presenter::init(life_instance, qt5_app_instance);
-    return presenter.exec();*/
-    return 0;
+    life::qt::LifeView & qt5_app_instance = life::qt::LifeView::init(life_instance);
+    return qt5_app_instance.exec(argc, argv);
 }
 
 int app::OfflineApp::execute(int argc, char ** argv) {
+    app::OfflineApp::ArgsTuple args;
     try {
-        app::OfflineApp::parse_args(argc, argv);
+        args = app::OfflineApp::parse_args(argc, argv);
     } catch (app::ArgsParsingError & e) {
         std::cout << e.what() << std::endl << std::endl;
-        return app::HelpApp().execute(argc, argv);
+        return app::HelpApp::execute(argc, argv);
     }
     std::string scenario = argv[1];
     life::Life & life_instance = life::Life::init(scenario);
-    life_instance.evolve(this->stages_);
-    life_instance.dump(this->output_);
+    life_instance.evolve(std::get<0>(args));
+    life_instance.dump(std::get<1>(args));
     return 0;
 }
 
@@ -56,7 +54,7 @@ std::string app::OnlineApp::random_scenario() {
     }
 }
 
-void app::OfflineApp::parse_args(int argc, char ** argv) {
+app::OfflineApp::ArgsTuple app::OfflineApp::parse_args(int argc, char ** argv) {
     std::string scenario = argv[1];
     std::vector<std::string> args;
     for (int i = 2; i != argc; ++i)
@@ -77,8 +75,7 @@ void app::OfflineApp::parse_args(int argc, char ** argv) {
     }
     if (stages_char_processed != iterations_val.length())
         throw app::ArgsParsingError("Arg of \"--iterations (-i)\" must be integer");
-    this->stages_ = stages;
-    this->output_ = output_val;
+    return std::make_tuple(stages, output_val);
 }
 
 void app::OfflineApp::parse_long_prefix_args(std::vector<std::string> & args, std::string & x, std::string & o) {

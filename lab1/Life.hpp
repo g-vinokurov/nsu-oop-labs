@@ -19,6 +19,7 @@ namespace life {
         ~Life() = default;
 
         static Life & init(std::string const & filename = "");
+
         void next_generation();
         void evolve(size_t stages = 1);
         void dump(std::string const & filename);

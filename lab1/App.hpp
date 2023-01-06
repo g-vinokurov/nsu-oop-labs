@@ -5,6 +5,8 @@
 #include <utility>
 
 #include "Life.hpp"
+#include "Qt5GUI.hpp"
+#include "Presenter.hpp"
 
 namespace app {
     const std::string ARG_ITERATIONS_PREFIX_L = "--iterations=";
@@ -26,25 +28,25 @@ namespace app {
 namespace app {
     class IApp {
     public:
-        virtual void execute(int argc, char ** argv) = 0;
+        virtual int execute(int argc, char ** argv) = 0;
         virtual ~IApp() = default;
     };
 
     class HelpApp final : public IApp {
     public:
-        void execute(int argc, char ** argv) override;
+        int execute(int argc, char ** argv) override;
     };
 
     class OnlineApp final : public IApp {
     public:
-        void execute(int argc, char ** argv) override;
+        int execute(int argc, char ** argv) override;
     private:
         static std::string random_scenario();
     };
 
     class OfflineApp final : public IApp {
     public:
-        void execute(int argc, char ** argv) override;
+        int execute(int argc, char ** argv) override;
     private:
         static void parse_long_prefix_args(std::vector<std::string> & args, std::string & x, std::string & o);
         static void parse_mix_prefix_args(std::vector<std::string> & args, std::string & x, std::string & o);

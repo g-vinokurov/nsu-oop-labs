@@ -1,6 +1,6 @@
 #include "App.hpp"
 
-void app::HelpApp::execute(int argc, char ** argv) {
+int app::HelpApp::execute(int argc, char ** argv) {
     std::cout << "Usage: " << argv[0] << " [file] [options]" << std::endl;
     std::cout << "Options:" << std::endl;
     std::cout << "  --help              Display this information." << std::endl;
@@ -9,26 +9,31 @@ void app::HelpApp::execute(int argc, char ** argv) {
     std::cout << "  -i <x>              Evolve <x> stages." << std::endl;
     std::cout << "  -o <filename>       Save the universe to <filename>." << std::endl;
     std::cout << "Use options \"--iterations (-i)\" and \"--output (-o)\" together" << std::endl;
+    return 0;
 }
 
-void app::OnlineApp::execute(int argc, char ** argv) {
+int app::OnlineApp::execute(int argc, char ** argv) {
+    /*
     std::string scenario = (argc == 2) ? argv[1] : app::OnlineApp::random_scenario();
     life::Life & life_instance = life::Life::init(scenario);
-    // run GUI
+    qt5gui::App & qt5_app_instance = qt5gui::App::init(argc, argv);
+    mvp::Presenter & presenter = mvp::Presenter::init(life_instance, qt5_app_instance);
+    return presenter.exec();*/
+    return 0;
 }
 
-void app::OfflineApp::execute(int argc, char ** argv) {
+int app::OfflineApp::execute(int argc, char ** argv) {
     try {
         app::OfflineApp::parse_args(argc, argv);
     } catch (app::ArgsParsingError & e) {
         std::cout << e.what() << std::endl << std::endl;
-        app::HelpApp().execute(argc, argv);
-        return;
+        return app::HelpApp().execute(argc, argv);
     }
     std::string scenario = argv[1];
     life::Life & life_instance = life::Life::init(scenario);
     life_instance.evolve(this->stages_);
     life_instance.dump(this->output_);
+    return 0;
 }
 
 std::string app::OnlineApp::random_scenario() {

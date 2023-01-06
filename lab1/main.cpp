@@ -2,10 +2,14 @@
 
 int main(int argc, char ** argv) {
     if (argc == 3 or argc > 6) {
-        app::HelpApp();
+        std::cout << "Invalid number of arguments" << std::endl << std::endl;
+        app::HelpApp().execute(argc, argv);
     } else if (argc == 1 or argc == 2) {
-        app::OnlineApp(argc, argv);
+        if (argc == 2 and std::string(argv[1]) == "--help")
+            app::HelpApp().execute(argc, argv);
+        else
+            app::OnlineApp().execute(argc, argv);
     } else
-        app::OfflineApp(argc, argv);
+        app::OfflineApp().execute(argc, argv);
     return 0;
 }
